@@ -1,3 +1,5 @@
+**[中文](./README_zh.md) | English**
+
 # Fenghua Explainer Video Skills
 
 A modular skill pipeline for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that transforms articles, links, or raw content into polished short explainer videos — complete with AI-generated narration, storyboard images, subtitles, and branded packaging.
