@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style: Dark Gold — 暗黑金</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif; background: #0c0c0c; color: #e8e0d0; }
+
+  /* === PAGE 1: Storyboard Frame Reference === */
+  .frame {
+    width: 1920px; height: 1080px;
+    background: linear-gradient(160deg, #0c0c0c 0%, #1a1510 50%, #0c0c0c 100%);
+    position: relative; overflow: hidden; margin: 0 auto 40px;
+  }
+  /* Subtle diagonal lines */
+  .frame::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      45deg, transparent, transparent 80px,
+      rgba(212, 175, 55, 0.03) 80px, rgba(212, 175, 55, 0.03) 81px
+    );
+  }
+  /* Gold glow */
+  .glow {
+    position: absolute; width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+    top: -150px; left: 50%; transform: translateX(-50%);
+  }
+  /* Avatar area */
+  .avatar-zone {
+    position: absolute; left: 80px; top: 50%; transform: translateY(-50%);
+    width: 340px; height: 480px;
+    border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(212, 175, 55, 0.03);
+    color: rgba(212, 175, 55, 0.4); font-size: 15px;
+  }
+  /* Main content */
+  .main-content {
+    position: absolute; left: 500px; top: 80px; right: 80px; bottom: 80px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  /* Gold thin line */
+  .gold-line {
+    width: 80px; height: 2px;
+    background: linear-gradient(to right, #d4af37, transparent);
+    margin-bottom: 24px;
+  }
+  .headline {
+    font-size: 50px; font-weight: 800; color: #f0e6d2;
+    line-height: 1.35; margin-bottom: 20px;
+  }
+  .headline .highlight {
+    color: #d4af37;
+  }
+  .subtitle {
+    font-size: 20px; color: rgba(232, 224, 208, 0.5); line-height: 1.6;
+    max-width: 680px; margin-bottom: 40px;
+  }
+  /* Quote block */
+  .quote-block {
+    padding: 24px 30px; border-radius: 12px;
+    background: rgba(212, 175, 55, 0.06);
+    border-left: 3px solid #d4af37;
+    margin-bottom: 30px; max-width: 700px;
+  }
+  .quote-text {
+    font-size: 20px; font-style: italic; color: rgba(240, 230, 210, 0.8);
+    line-height: 1.6;
+  }
+  .quote-author {
+    font-size: 14px; color: #d4af37; margin-top: 12px;
+  }
+  /* Stats row */
+  .stats-row { display: flex; gap: 50px; margin-top: 10px; }
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: 42px; font-weight: 900; color: #d4af37;
+    font-family: 'Georgia', serif;
+  }
+  .stat-label { font-size: 14px; color: rgba(232, 224, 208, 0.4); margin-top: 4px; }
+  /* Bottom */
+  .bottom-bar {
+    position: absolute; bottom: 40px; left: 500px; right: 80px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(212, 175, 55, 0.15); padding-top: 16px;
+  }
+  .tag {
+    padding: 5px 14px; border-radius: 4px; font-size: 13px;
+    color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.25);
+    background: rgba(212, 175, 55, 0.05);
+  }
+
+  /* === PAGE 2: Color Palette === */
+  .palette { max-width: 1200px; margin: 60px auto; padding: 40px; }
+  .palette h2 { font-size: 28px; margin-bottom: 30px; color: #d4af37; }
+  .color-row { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+  .swatch {
+    width: 160px; height: 100px; border-radius: 8px; display: flex;
+    align-items: flex-end; padding: 10px; font-size: 13px;
+    font-family: monospace; color: #fff; border: 1px solid rgba(212,175,55,0.15);
+  }
+  .typo-sample { margin-top: 20px; }
+  .typo-sample h3 { font-size: 20px; color: #d4af37; margin-bottom: 16px; }
+  .typo-sample p { font-size: 16px; color: rgba(232,224,208,0.5); line-height: 1.8; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: Storyboard frame example -->
+<div class="frame">
+  <div class="glow"></div>
+  <div class="avatar-zone">[ 头像区域 ]</div>
+  <div class="main-content">
+    <div class="gold-line"></div>
+    <div class="headline">
+      复利工程：让 AI 的<br>
+      <span class="highlight">每一步都算数</span>
+    </div>
+    <div class="subtitle">
+      从经验沉淀到能力进化，构建 AI 自主成长的飞轮
+    </div>
+    <div class="quote-block">
+      <div class="quote-text">"如果这个事情我不想介入，那我就应该对结果妥协或者愿意付出代价。"</div>
+      <div class="quote-author">— 余一</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-num">100+</div>
+        <div class="stat-label">Agent 协同</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">40 min</div>
+        <div class="stat-label">全自动产出</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">95%</div>
+        <div class="stat-label">品控通过率</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span class="tag">深度分析</span>
+    <span class="tag">复利思维</span>
+    <span class="tag">AI 进化</span>
+  </div>
+</div>
+
+<!-- PAGE 2: Color palette reference -->
+<div class="palette">
+  <h2>Dark Gold 色彩系统</h2>
+  <div class="color-row">
+    <div class="swatch" style="background:#0c0c0c;">BG Primary #0c0c0c</div>
+    <div class="swatch" style="background:#1a1510;">BG Secondary #1a1510</div>
+    <div class="swatch" style="background:#d4af37; color:#000;">Gold Accent #d4af37</div>
+    <div class="swatch" style="background:#f0e6d2; color:#000;">Text Primary #f0e6d2</div>
+    <div class="swatch" style="background:rgba(232,224,208,0.5); color:#000;">Text Secondary 50%</div>
+    <div class="swatch" style="background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.25);">Card/Quote BG</div>
+  </div>
+  <div class="typo-sample">
+    <h3>字体规范</h3>
+    <p><strong>标题：</strong>50px / 800 weight / #f0e6d2</p>
+    <p><strong>高亮词：</strong>#d4af37 金色，用于核心概念和数据</p>
+    <p><strong>引文：</strong>20px / italic / 左侧金色边框 / 半透明背景</p>
+    <p><strong>数字：</strong>42px / 900 weight / #d4af37 / Georgia serif</p>
+    <p><strong>正文：</strong>14-20px / 50% 透明度 / 行高 1.6</p>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fenghua解说视频（可迁移版）"
+  short_description: "可跨电脑迁移的风华解说视频流程，去除硬编码路径"
+  default_prompt: "Use $fenghua-explainer-video-portable to build or package a Fenghua-style explainer video on a new machine using portable paths, environment variables, and reusable scripts."
