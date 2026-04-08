@@ -70,25 +70,23 @@ Article / URL / Text
 
 ## Installation
 
-1. Clone this repo into your Claude Code skills directory:
+This repo is packaged as a **Claude Code plugin**. Install it with one command inside Claude Code:
 
-```bash
-git clone https://github.com/fenghuachou/fenghua-video-skills.git /tmp/fenghua-video-skills
-
-# Copy each skill into Claude Code's skills directory
-for dir in /tmp/fenghua-video-skills/fenghua-*/; do
-  cp -r "$dir" ~/.claude/skills/$(basename "$dir")
-done
+```
+/plugin install https://github.com/fenghuachou/fenghua-video-skills
 ```
 
-2. Set up your API key:
+You will be prompted for your `LISTENHUB_API_KEY` during installation.
+
+### Manual install (alternative)
 
 ```bash
+git clone https://github.com/fenghuachou/fenghua-video-skills.git ~/.claude/plugins/fenghua-video
 echo 'export LISTENHUB_API_KEY="your-key-here"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-3. Install the marswaveai TTS/image skill (optional, for enhanced TTS features):
+### Optional — enhanced TTS helpers
 
 ```bash
 npx skills add marswaveai/skills
@@ -99,7 +97,7 @@ npx skills add marswaveai/skills
 In Claude Code, simply say:
 
 ```
-/fenghua-video-master
+/fenghua-video:fenghua-video-master
 
 请根据以下链接创作一条解说短视频：https://example.com/article
 ```

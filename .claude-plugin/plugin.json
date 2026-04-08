@@ -1,0 +1,29 @@
+{
+  "name": "fenghua-video",
+  "version": "1.0.0",
+  "description": "End-to-end explainer video pipeline for Claude Code — turns articles, links or text into polished short videos with AI narration, storyboards, subtitles and branded packaging.",
+  "author": {
+    "name": "Fenghua Chou",
+    "url": "https://github.com/fenghuachou"
+  },
+  "homepage": "https://github.com/fenghuachou/fenghua-video-skills",
+  "repository": "https://github.com/fenghuachou/fenghua-video-skills",
+  "license": "MIT",
+  "keywords": [
+    "video",
+    "explainer-video",
+    "tts",
+    "storyboard",
+    "remotion",
+    "ffmpeg",
+    "chinese",
+    "ai-narration"
+  ],
+  "skills": "./skills/",
+  "userConfig": {
+    "listenhub_api_key": {
+      "description": "Listenhub / marswave API key (used for TTS narration and storyboard image generation). Get one at https://listenhub.ai",
+      "sensitive": true
+    }
+  }
+}
