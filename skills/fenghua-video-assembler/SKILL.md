@@ -30,6 +30,77 @@ Remotion: clean 16:9 (no subtitles)
 3. **Single-line display only** — SRT is pre-split into short segments (≤25 chars) before burning
 4. On macOS, Homebrew ffmpeg typically lacks libass, so Python+Pillow is the practical default
 
+## ⚠️ Critical Pitfalls (Lessons Learned)
+
+### Pitfall 1: scenes.ts timestamps must use ORIGINAL SRT times
+
+**Wrong:** Dividing SRT timestamps by 1.1 in scenes.ts.
+**Right:** Use original SRT timestamps directly.
+
+**Why:** Remotion plays the ORIGINAL-speed audio (`narration.mp3`). If you pre-divide timestamps by 1.1, the scene images will advance faster than the audio → **desync**. The 1.1x speed-up is applied by ffmpeg AFTER Remotion render, which uniformly accelerates both video and audio together.
+
+```
+❌ scenes.ts: startSec: 10.404 / 1.1 = 9.46   ← WRONG, causes desync
+✅ scenes.ts: startSec: 10.404                  ← RIGHT, matches audio
+```
+
+Also set `TOTAL_DURATION_SECONDS` to `Math.ceil(audio_duration)`, NOT `audio_duration / 1.1`.
+
+### Pitfall 2: burn-subtitles.py must force FPS on the reader
+
+After 1.1x speed-up (`setpts=PTS/1.1`), ffmpeg may change the video's frame rate (e.g., 30fps → 25fps). The `burn-subtitles.py` reader must force a consistent FPS with `-r`:
+
+```python
+# ❌ WRONG — reads at video's native fps (may be 25fps after 1.1x)
+reader = Popen(["ffmpeg", "-i", INPUT, "-f", "rawvideo", ...])
+
+# ✅ RIGHT — forces 30fps output regardless of source fps
+reader = Popen(["ffmpeg", "-i", INPUT, "-r", "30", "-f", "rawvideo", ...])
+```
+
+Without `-r 30`, the reader produces fewer frames than expected (e.g., 5773 instead of 6927), but the writer still writes at 30fps → **video truncated** (e.g., 192s instead of 231s).
+
+### Pitfall 3: SRT split timing ÷1.1 IS correct (don't confuse with Pitfall 1)
+
+The `split-srt.py` script that generates subtitles for the 3:4 video SHOULD divide timestamps by 1.1, because subtitles are burned onto the ALREADY-sped-up video. This is the opposite of scenes.ts.
+
+```
+scenes.ts  → timestamps for Remotion → uses ORIGINAL times (audio is original speed)
+split-srt  → timestamps for subtitle burn → uses ÷1.1 times (video is 1.1x speed)
+```
+
+### Pitfall 4: Remotion Chrome browser flag
+
+`REMOTION_CHROME_EXECUTABLE` env var does NOT work reliably. Always use the CLI flag:
+
+```bash
+# ❌ May not work
+export REMOTION_CHROME_EXECUTABLE="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+# ✅ Always works
+npx remotion render ... --browser-executable="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+```
+
+### Pitfall 5: ffmpeg 3:4 background must use `-loop 1` and scale
+
+When overlaying onto a background image:
+- Background image may not be exactly 1080x1440 → always add `scale=1080:1440`
+- Static image input needs `-loop 1` flag, otherwise output is near-empty (80KB)
+
+```bash
+ffmpeg -y -loop 1 -i bg.jpg -i video.mp4 \
+  -filter_complex "[0:v]scale=1080:1440[bg];[1:v]scale=1080:-2[vid];[bg][vid]overlay=0:216:shortest=1[out]" \
+  ...
+```
+
+### Pitfall 6: Avatar image size for API calls
+
+Avatar reference images >1MB cause API timeouts. Always resize before batch image generation:
+
+```bash
+magick convert avatar.png -resize 500x500 avatar-small.png  # Target ~300KB
+```
+
 ## Input
 
 - `storyboards/final/*.png` — QC-approved images
@@ -166,16 +237,32 @@ Create the React components based on storyboard.json:
 - Generate SceneFrame components for each storyboard frame
 - Wire up audio, subtitles, and transitions
 
+**⚠️ scenes.ts timing — use ORIGINAL SRT timestamps (see Pitfall 1):**
+```typescript
+// TOTAL_DURATION_SECONDS = Math.ceil(audio_duration_seconds)
+// NOT audio_duration / 1.1 !!
+export const TOTAL_DURATION_SECONDS = 254; // e.g., ceil(253.525)
+
+// Scene timestamps come directly from SRT, NOT divided by 1.1
+export const scenes: Scene[] = [
+  { id: "scene-01", image: "scene-01.png", startSec: 0, endSec: 10.268 },
+  // ... use original SRT end times
+];
+```
+
 ### Step 4: Render clean 16:9 master (no subtitles)
 
 ```bash
-npx remotion render ExplainerVideo outputs/video-16x9.mp4 --concurrency=2
+npx remotion render src/index.ts FenghuaExplainerVideo \
+  --output="../outputs/video-16x9.mp4" \
+  --browser-executable="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 ```
 
-**Important:** Use `--concurrency=2` to avoid memory issues with large images.
-Rendering 5000+ frames typically takes 10-20 minutes.
-
-The Remotion video must NOT include subtitles. Subtitles are burned later via ffmpeg.
+**Important:**
+- Use `--browser-executable` flag (see Pitfall 4 — env var doesn't work reliably)
+- Rendering 7000+ frames typically takes 8-15 minutes on Apple Silicon
+- The Remotion video must NOT include subtitles — burned later via ffmpeg
+- **Verify duration matches audio:** `ffprobe -show_entries format=duration output.mp4` should ≈ `TOTAL_DURATION_SECONDS`
 
 ### Step 5: Speed up to 1.1x
 
@@ -191,24 +278,26 @@ ffmpeg -y -i outputs/video-16x9.mp4 \
 ### Step 6: Package 3:4 vertical with branded background (no subtitles yet)
 
 ```bash
+# ⚠️ Background MUST use -loop 1, and MUST be scaled to exact 1080x1440 (see Pitfall 5)
 ffmpeg -y \
   -loop 1 -i assets/backgrounds/bg-3x4.jpg \
   -i outputs/video-16x9-1.1x.mp4 \
   -filter_complex "\
-    [0:v]scale=1080:1440,setsar=1[bg]; \
-    [1:v]scale=1080:607[vid]; \
+    [0:v]scale=1080:1440[bg]; \
+    [1:v]scale=1080:-2[vid]; \
     [bg][vid]overlay=0:216:shortest=1[out]" \
   -map "[out]" -map "1:a" \
   -c:v libx264 -preset medium -crf 18 \
-  -c:a aac -b:a 192k \
+  -c:a copy \
   -shortest \
-  /tmp/video-3x4-nosub.mp4
+  outputs/video-3x4-nosub.mp4
 ```
 
 **Layout specs (1080x1440):**
 - 16:9 video scaled to 1080x607, placed at y=216 (upper area)
 - Video bottom edge at y=823
 - Bottom area (~617px) shows branded background with logo
+- **Verify:** `ffprobe` duration should match the 1.1x video (~231s)
 
 ### Step 7: Pre-split SRT into single-line segments
 
@@ -273,8 +362,10 @@ SUB_Y_CENTER = 880  # between video bottom (y=823) and logo (y=1060)
 **ffmpeg pipe setup:**
 ```python
 # Reader: decode video to raw RGB frames
+# ⚠️ MUST use -r FPS to force consistent frame rate (see Pitfall 2)
+# Without -r, the 1.1x video may have different fps (e.g. 25fps) → truncation
 reader = subprocess.Popen(
-    ["ffmpeg", "-i", INPUT, "-f", "rawvideo", "-pix_fmt", "rgb24", "-v", "quiet", "-"],
+    ["ffmpeg", "-i", INPUT, "-r", str(FPS), "-f", "rawvideo", "-pix_fmt", "rgb24", "-v", "quiet", "-"],
     stdout=subprocess.PIPE)
 
 # Writer: encode raw frames back to H.264, copy audio from input

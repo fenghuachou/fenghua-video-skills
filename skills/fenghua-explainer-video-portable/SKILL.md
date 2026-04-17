@@ -105,6 +105,13 @@ Use this shape:
 7. overlay onto `3:4` branded background (ffmpeg)
 8. generate ASS subtitle file from SRT (timing / 1.1, smart Chinese wrapping)
 9. burn ASS subtitles into `3:4` video (ffmpeg) — positioned below 16:9 area
+10. **[基本节点] 生成视频号介绍文本** → `outputs/intro-text.md`
+    - 三段式结构：短版（≤30字）+ 长版（200-300字）+ 话题标签（5-8个）
+    - 从 script.json 的 social_caption / hashtags 起稿
+11. **[基本节点] 生成 3:4 封面图** → `outputs/cover-3x4.png`
+    - Listenhub `/images/generation`，`aspectRatio: "3:4"`
+    - 四层结构：主标题 + 视觉元素 + 头像（bottom-right，必传 referenceImages）+ 副标签
+    - 参见 references/pipeline.md 的 "Publishing Assets" 章节
 
 ### B. Existing `mp3 + srt`
 
@@ -133,6 +140,8 @@ Typical output set:
 5. `outputs/topic-16x9-clean.mp4` — clean 16:9, no subtitles
 6. `outputs/topic-16x9-1.1x.mp4` — 1.1x speed
 7. `outputs/topic-3x4.mp4` — 3:4 with subtitles burned below video area
+8. `outputs/cover-3x4.png` — 视频号封面图（3:4, Listenhub API 生成）
+9. `outputs/intro-text.md` — 视频号介绍文本（短版+长版+话题标签）
 
 ## References
 
@@ -141,3 +150,9 @@ Read [references/pipeline.md](./references/pipeline.md) for:
 1. setup checklist for a new machine
 2. environment-variable contract
 3. portable script usage
+
+Read [references/publishing-assets.md](./references/publishing-assets.md) for:
+
+1. 视频号介绍文本（Node 10）撰写模板与原则
+2. 3:4 封面图（Node 11）生成脚本模板与 prompt 四层结构
+3. Listenhub 图片生成 API 参数要点与响应解析

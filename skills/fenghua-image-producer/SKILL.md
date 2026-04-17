@@ -167,6 +167,13 @@ with open("scene-01.png", "wb") as f:
 **关键特性：**
 - 头像通过 `images` 数组以 `data:image/png;base64,...` 格式内联传入
 - 无需外部 URL 托管头像图片
+
+**⚠️ 头像文件必须 <1MB，否则 API 超时！**
+原始头像如果较大（>1MB），必须先缩小再使用：
+```bash
+magick convert avatar.png -resize 500x500 fenghua-avatar-small.png  # 目标 ~300KB
+```
+之后用 `fenghua-avatar-small.png` 作为 base64 输入。
 - 响应中 `data[0].b64_json` 为生成图片的 base64 编码
 - 建议用 Python 脚本批量生成（避免 shell 中处理大 base64 字符串的问题）
 
@@ -188,7 +195,7 @@ const body = {
   aspectRatio: '16:9'
 };
 
-const response = await fetch(`https://${YOUR_AI_GATEWAY_HOST}/api/v1/images/generations`, {
+const response = await fetch('https://ai-gateway.happycapy.ai/api/v1/images/generations', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

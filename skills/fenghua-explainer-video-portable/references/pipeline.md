@@ -118,6 +118,38 @@ scripts/package_3x4_bg_top.sh <input_master.mp4> <background.png> <output.mp4> [
 6. 16:9 master: `outputs/topic-16x9-clean.mp4`
 7. 3:4 publish: `outputs/topic-3x4-bg-centered.mp4`
 
+## Critical Pitfalls
+
+These are hard-won lessons from production. Violating any of them causes silent failures.
+
+### 1. scenes.ts uses ORIGINAL SRT timestamps (NOT ÷1.1)
+
+Remotion plays the original-speed audio. Scene timestamps must match the original SRT.
+The 1.1x speed-up is applied by ffmpeg AFTER render to both video+audio together.
+Set `TOTAL_DURATION_SECONDS = Math.ceil(audio_duration)`.
+
+### 2. burn-subtitles reader must force FPS with `-r 30`
+
+After 1.1x speed-up, ffmpeg may output at ~25fps instead of 30fps.
+Without `-r 30` on the reader, fewer frames are decoded → video truncated.
+
+### 3. SRT split ÷1.1 IS correct (subtitles go on 1.1x video)
+
+Don't confuse with #1. The split SRT timestamps should be ÷1.1
+because subtitles are burned onto the already-sped-up video.
+
+### 4. Use `--browser-executable` CLI flag for Remotion
+
+The `REMOTION_CHROME_EXECUTABLE` env var is unreliable. Always use the CLI flag.
+
+### 5. Background image: `-loop 1` + `scale=1080:1440`
+
+Without `-loop 1`, output is near-empty. Background may not be exact 1080x1440, so always scale.
+
+### 6. Avatar images must be <1MB for API calls
+
+Resize to 500x500 (~300KB) before batch generation to avoid timeouts.
+
 ## Migration rule
 
 Only move the skill folder after checking that the target machine also has:
